@@ -1,0 +1,43 @@
+version: '3.1'
+
+services:
+
+  php:
+    user: "1000:1000"
+    build: ./docker
+    ports:
+      - '9000:9000'
+    volumes:
+      - ./:/app
+    working_dir: /app
+    tty: true
+    container_name: 'php'
+
+  mysql:
+    image: mysql:5.7
+    container_name: 'mysql'
+    environment:
+      MYSQL_ROOT_PASSWORD: "testpassword"
+      MYSQL_DATABASE: "test"
+    volumes:
+      - ./docker/db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  rabbitmq:
+    image: rabbitmq:3.7.5-management
+    working_dir: /app
+    hostname: rabbit-mq
+    container_name: 'rabbitmq'
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    environment:
+      RABBITMQ_DEFAULT_USER: testuser
+      RABBITMQ_DEFAULT_PASS: testpassword
+      RABBITMQ_DEFAULT_VHOST: testvhost
+
+volumes:
+  mysql:
+  rabbitmq:
+
