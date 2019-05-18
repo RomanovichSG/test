@@ -19,32 +19,14 @@ class UsersRepository extends ServiceEntityRepository
         parent::__construct($registry, Users::class);
     }
 
-    // /**
-    //  * @return Users[] Returns an array of Users objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param string $user
+     *
+     * @return Users|null
+     */
+    public function getUserByChecksum(string $user)
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        /* @var $user Users */
+        return $this->findOneBy(['checksum' => $user->getChecksum()]);
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Users
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
