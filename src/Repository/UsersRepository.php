@@ -20,13 +20,13 @@ class UsersRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $user
+     * @param string $checksume
      *
      * @return Users|null
      */
-    public function getUserByChecksum(string $user)
+    public function getUserByChecksum(string $checksume)
     {
         /* @var $user Users */
-        return $this->findOneBy(['checksum' => $user->getChecksum()]);
+        return $this->findOneBy(['checksum' => $checksume]);
     }
 }

@@ -18,33 +18,4 @@ class UserPhoneNumbersRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, UserPhoneNumbers::class);
     }
-
-    // /**
-    //  * @return UserPhoneNumbers[] Returns an array of UserPhoneNumbers objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?UserPhoneNumbers
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

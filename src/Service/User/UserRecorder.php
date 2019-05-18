@@ -9,6 +9,7 @@ use App\Service\Exception\AlreadyExistException;
 use App\Service\Recordable;
 use App\Service\Recorder;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Class UserRecorder
@@ -33,7 +34,7 @@ class UserRecorder implements Recorder
      *
      * @param EntityManager $entityManager
      */
-    public function __construct(EntityManager $entityManager)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(Users::class);
@@ -62,7 +63,7 @@ class UserRecorder implements Recorder
         foreach ($unit->getPhoneNumbers() as $number) {
             $phoneNumber = new UserPhoneNumbers();
             $phoneNumber->setPhoneNumber($number);
-            $phoneNumber->setUser($user);
+            $phoneNumber->setUsers($user);
             $this->entityManager->persist($phoneNumber);
         }
 
