@@ -1,4 +1,6 @@
 var startButton = document.getElementById('start');
+var nextButton = document.getElementById('next');
+var prevButton = document.getElementById('prev');
 
 startButton.addEventListener('click', function () {
     var xhr = new XMLHttpRequest();
@@ -9,7 +11,7 @@ startButton.addEventListener('click', function () {
             document.getElementById('start-block').setAttribute('hidden', true);
             document.getElementById('form').removeAttribute('hidden');
 
-            fillTable(response);
+            fillTable(response, 1);
         }
         else {
             alert('Ops' + xhr.status);
@@ -18,7 +20,10 @@ startButton.addEventListener('click', function () {
     xhr.send();
 });
 
-function fillTable(data) {
+prevButton.addEventListener('click', prev);
+nextButton.addEventListener('click', next);
+
+function fillTable(data, page) {
     var headerDivs = {
         'First name':'cell',
         'Last name':'cell',
@@ -41,11 +46,20 @@ function fillTable(data) {
         header.appendChild(headerChild);
     }
 
+    size = data.length;
+
+    if (size > 0) {
+        table.page = page;
+    } else {
+        table.page = page - 1;
+    }
+
     table.appendChild(header);
 
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < size; i++) {
         tableChield = document.createElement('div');
         tableChield.className = 'row';
+        tableChield.id = data[i].id;
         tableChield.appendChild(
             createCeil(data[i].firstName, 'First Name')
         );
@@ -66,4 +80,43 @@ function createCeil(data, name) {
     chield.setAttribute('data-title', name);
     chield.innerHTML += data;
     return chield;
+}
+
+function next() {
+    var table = document.getElementsByClassName('table').table;
+    var page = table.page + 1;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/users?page=' + page);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            fillTable(response, page);
+        }
+        else {
+            alert('Ops' + xhr.status);
+        }
+    };
+    xhr.send();
+}
+
+function prev() {
+    var table = document.getElementsByClassName('table').table;
+    var page = table.page - 1;
+    var xhr = new XMLHttpRequest();
+
+    if (page < 1) {
+        page = 1;
+    }
+
+    xhr.open('GET', '/users?page=' + page);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            fillTable(response, page);
+        }
+        else {
+            alert('Ops' + xhr.status);
+        }
+    };
+    xhr.send();
 }
