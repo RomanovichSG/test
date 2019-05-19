@@ -26,7 +26,7 @@ class UserDenormalizer implements DenormalizerInterface
     /**
      * @inheritDoc
      */
-    public function denormalize($data, $class, $format = null, array $context = [])
+    public function denormalize($data, $class = User::class, $format = null, array $context = [])
     {
         $this->validateData($data);
 

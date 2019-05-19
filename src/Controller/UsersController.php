@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
-use App\Service\User\User;
-use App\Service\User\UserDenormalizer;
+use App\Service\User\Messenger\RecordUserMessage;
 use App\Service\User\UserService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,14 +26,21 @@ class UsersController extends AbstractController
     private $requestStack;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * UsersController constructor.
      *
      * @param RequestStack $requestStack
      */
     public function __construct(
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        LoggerInterface $logger
     ) {
         $this->requestStack = $requestStack;
+        $this->logger = $logger;
     }
 
     /**
@@ -51,8 +59,19 @@ class UsersController extends AbstractController
             );
 
             return $this->json($users, Response::HTTP_OK);
-        } catch (\Exception $exception) {
-            return $this->json('Internal service error', Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Throwable $exception) {
+            $this->logger->warning(
+                $exception->getMessage(),
+                [
+                    $exception->getFile(),
+                    $exception->getLine()
+                ]
+            );
+
+            return $this->json(
+                Response::$statusTexts[Response::HTTP_INTERNAL_SERVER_ERROR],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
     }
 
@@ -61,20 +80,30 @@ class UsersController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function addUser(UserDenormalizer $denormalizer): JsonResponse
+    public function addUser(MessageBusInterface $messageBus): JsonResponse
     {
         try {
             $content = $this->requestStack->getCurrentRequest()->getContent();
             $content = \json_decode($content, true);
+            $messageBus->dispatch(new RecordUserMessage($content));
+        } catch (\Throwable $exception) {
+            $this->logger->warning(
+                $exception->getMessage(),
+                [
+                    $exception->getFile(),
+                    $exception->getLine()
+                ]
+            );
 
-            try {
-                /* @var User $user */
-                $user = $denormalizer->denormalize($content, User::class);
-            } catch (\InvalidArgumentException $exception) {
-                return $this->json($exception->getMessage(), Response::HTTP_BAD_REQUEST);
-            }
-        } catch (\Exception $exception) {
-            return $this->json('Internal service error', Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json(
+                Response::$statusTexts[Response::HTTP_INTERNAL_SERVER_ERROR],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
+
+        return $this->json(
+            Response::$statusTexts[Response::HTTP_OK],
+            Response::HTTP_OK
+        );
     }
 }
