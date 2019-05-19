@@ -69,6 +69,7 @@ class UserService
             }
 
             $user = [
+                'id' => $user->getId(),
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
                 'phoneNumbers' => $numbers,

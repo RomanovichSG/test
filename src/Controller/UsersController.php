@@ -57,8 +57,16 @@ class UsersController extends AbstractController
                 $request->get('firstName'),
                 $request->get('sorting')
             );
+            $firstId = $users[array_key_first($users)]['id'];
+            $lastId = $users[array_key_last($users)]['id'];
 
-            return $this->json($users, Response::HTTP_OK);
+            return $this->json(
+                $users,
+                Response::HTTP_OK,
+                [
+                    'Content-Range' => "$firstId-$lastId"
+                ]
+            );
         } catch (\Throwable $exception) {
             $this->logger->warning(
                 $exception->getMessage(),
