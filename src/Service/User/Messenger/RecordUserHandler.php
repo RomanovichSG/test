@@ -40,9 +40,13 @@ class RecordUserHandler implements MessageHandlerInterface
     }
 
     /**
+     * Recording incoming user to the database.
+     *
      * @param RecordUserMessage $message
+     *
+     * @return void
      */
-    public function __invoke(RecordUserMessage $message)
+    public function __invoke(RecordUserMessage $message) :void
     {
         try {
             $this->recorder->makeRecord($message->getUser());

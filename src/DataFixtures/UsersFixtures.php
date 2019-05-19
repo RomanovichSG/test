@@ -41,12 +41,25 @@ class UsersFixtures extends Fixture
         'thud',
     ];
 
+    /**
+     * UsersFixtures constructor.
+     *
+     * @param UserDenormalizer $denormalizer
+     * @param UserRecorder $recorder
+     */
     public function __construct(UserDenormalizer $denormalizer, UserRecorder $recorder)
     {
         $this->denormalize = $denormalizer;
         $this->recorder = $recorder;
     }
 
+    /**
+     * Fill tables with the test data.
+     *
+     * @param ObjectManager $manager
+     *
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     public function load(ObjectManager $manager): void
     {
         for ($i = 0; $i <= 60; $i++) {
@@ -67,8 +80,8 @@ class UsersFixtures extends Fixture
                 /* @var User $user */
                 $user = $this->denormalize->denormalize($data, User::class);
                 $this->recorder->makeRecord($user);
-            } catch (AlreadyExistException $exception) {
-                echo 'Collision was found';
+            } catch (\Throwable $exception) {
+                echo $exception->getMessage();
             }
         }
     }

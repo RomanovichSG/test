@@ -34,7 +34,8 @@ class UsersController extends AbstractController
     /**
      * UsersController constructor.
      *
-     * @param RequestStack $requestStack
+     * @param RequestStack    $requestStack
+     * @param LoggerInterface $logger
      */
     public function __construct(
         RequestStack $requestStack,
@@ -48,6 +49,11 @@ class UsersController extends AbstractController
      * @Route("/users", methods={"GET"}, name="users")
      *
      * @param UserService $userService
+     *
+     * Possible page params:
+     * id        - for listing
+     * firstName - for searching
+     * sorting   - for sorting (ASC|DESC)
      *
      * @return JsonResponse
      */
@@ -91,16 +97,18 @@ class UsersController extends AbstractController
     /**
      * @Route("/users", methods={"POST"}, name="addUser")
      *
+     * Validating and denormalizing incoming payload
+     * After that payload will be sent to the Queue to record
+     *
      * @param MessageBusInterface $messageBus
-     * @param UserDenormalizer $denormalizer
+     * @param UserDenormalizer    $denormalizer
      *
      * @return JsonResponse
      */
     public function addUser(
         MessageBusInterface $messageBus,
         UserDenormalizer $denormalizer
-    ): JsonResponse
-    {
+    ): JsonResponse {
         try {
             $content = $this->requestStack->getCurrentRequest()->getContent();
 

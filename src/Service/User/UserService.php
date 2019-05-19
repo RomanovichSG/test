@@ -44,9 +44,11 @@ class UserService
     }
 
     /**
-     * @param null $id
-     * @param null $firstName
-     * @param null $sorting
+     * Receive user listing.
+     *
+     * @param null|int    $id
+     * @param null|string $firstName
+     * @param null|string $sorting
      *
      * @return array
      */
