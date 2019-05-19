@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\User\Messenger\RecordUserMessage;
+use App\Service\User\UserDenormalizer;
 use App\Service\User\UserService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -88,11 +89,21 @@ class UsersController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function addUser(MessageBusInterface $messageBus): JsonResponse
+    public function addUser(
+        MessageBusInterface $messageBus,
+        UserDenormalizer $denormalizer
+    ): JsonResponse
     {
         try {
             $content = $this->requestStack->getCurrentRequest()->getContent();
-            $content = \json_decode($content, true);
+
+            try {
+                /* @var \App\Service\User\User $content */
+                $content = $denormalizer->denormalize(\json_decode($content, true));
+            } catch (\InvalidArgumentException $exception) {
+                return $this->json($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+            }
+
             $messageBus->dispatch(new RecordUserMessage($content));
         } catch (\Throwable $exception) {
             $this->logger->warning(

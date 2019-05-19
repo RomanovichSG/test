@@ -3,6 +3,8 @@
 
 namespace App\Service\User\Messenger;
 
+use App\Service\User\User;
+
 /**
  * Class RecordUserMessage
  *
@@ -12,25 +14,25 @@ class RecordUserMessage
 {
 
     /**
-     * @var array
+     * @var User
      */
-    private $userData = [];
+    private $user = [];
 
     /**
      * RecordUserMessage constructor.
      *
-     * @param array $userData
+     * @param User $userData
      */
-    public function __construct(array $userData)
+    public function __construct(User $user)
     {
-        $this->userData = $userData;
+        $this->user = $user;
     }
 
     /**
-     * @return array
+     * @return User
      */
-    public function getUserData(): array
+    public function getUser(): User
     {
-        return $this->userData;
+        return $this->user;
     }
 }

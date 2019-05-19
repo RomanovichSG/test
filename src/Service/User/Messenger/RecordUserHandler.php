@@ -2,7 +2,6 @@
 
 namespace App\Service\User\Messenger;
 
-use App\Service\User\User;
 use App\Service\User\UserDenormalizer;
 use App\Service\User\UserRecorder;
 use Psr\Log\LoggerInterface;
@@ -15,11 +14,6 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
  */
 class RecordUserHandler implements MessageHandlerInterface
 {
-
-    /**
-     * @var UserDenormalizer
-     */
-    private $denormalizer;
 
     /**
      * @var UserRecorder
@@ -38,11 +32,9 @@ class RecordUserHandler implements MessageHandlerInterface
      * @param UserRecorder $recorder
      */
     public function __construct(
-        UserDenormalizer $denormalizer,
         UserRecorder $recorder,
         LoggerInterface $logger
     ) {
-        $this->denormalizer = $denormalizer;
         $this->recorder = $recorder;
         $this->logger = $logger;
     }
@@ -53,9 +45,7 @@ class RecordUserHandler implements MessageHandlerInterface
     public function __invoke(RecordUserMessage $message)
     {
         try {
-            /* @var User $user */
-            $user = $this->denormalizer->denormalize($message->getUserData());
-            $this->recorder->makeRecord($user);
+            $this->recorder->makeRecord($message->getUser());
         } catch (\Throwable $exception) {
             $this->logger->warning(
                 $exception->getMessage(),
