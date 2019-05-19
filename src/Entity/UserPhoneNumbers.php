@@ -22,36 +22,53 @@ class UserPhoneNumbers
     private $phoneNumber;
 
     /**
+     * @ORM\Column(type="integer", length=11)
+     */
+    private $usersId;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Users", inversedBy="userPhoneNumbers")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $user;
+    private $users;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getPhoneNumber(): ?int
+    public function getPhoneNumber(): ?string
     {
         return $this->phoneNumber;
     }
 
-    public function setPhoneNumber(int $phoneNumber): self
+    public function setPhoneNumber(string $phoneNumber): self
     {
         $this->phoneNumber = $phoneNumber;
 
         return $this;
     }
 
-    public function getUser(): ?Users
+    public function getUsers(): ?Users
     {
-        return $this->user;
+        return $this->users;
     }
 
-    public function setUser(?Users $user): self
+    public function setUsers(?Users $users): self
     {
-        $this->user = $user;
+        $this->users = $users;
+
+        return $this;
+    }
+
+    public function getUsersId(): ?int
+    {
+        return $this->usersId;
+    }
+
+    public function setUsersId($userId): self
+    {
+        $this->usersId = $userId;
 
         return $this;
     }

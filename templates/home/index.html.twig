@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello reviewer!{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('css/users.css') }}" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/users.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+<div id="container">
+
+    <div id="form" class="wrapper" hidden>
+        <div>
+            <button id="next" class="custom">
+                Next
+            </button>
+
+            <button id="prev" class="custom">
+                Previous
+            </button>
+
+            <input id="searchData" placeholder="Put first name" type="text" style="height: 58px">
+            <button id="search" class="custom">
+                Search by name
+            </button>
+        </div>
+        <div id="table" class="table">
+        </div>
+    </div>
+    <div id="start-block">
+        <button id="start" class="custom">
+            Get a list of users
+        </button>
+    </div>
+</div>
+{% endblock %}

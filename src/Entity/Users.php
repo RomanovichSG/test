@@ -5,9 +5,11 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Index;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UsersRepository")
+ * @ORM\Table(indexes={@Index(name="firstName", columns={"first_name"})})
  */
 class Users
 {
@@ -34,7 +36,7 @@ class Users
     private $checksum;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserPhoneNumbers", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\UserPhoneNumbers", mappedBy="users", orphanRemoval=true)
      */
     private $userPhoneNumbers;
 
@@ -96,7 +98,7 @@ class Users
     {
         if (!$this->userPhoneNumbers->contains($userPhoneNumber)) {
             $this->userPhoneNumbers[] = $userPhoneNumber;
-            $userPhoneNumber->setUser($this);
+            $userPhoneNumber->setUsers($this);
         }
 
         return $this;
@@ -107,8 +109,8 @@ class Users
         if ($this->userPhoneNumbers->contains($userPhoneNumber)) {
             $this->userPhoneNumbers->removeElement($userPhoneNumber);
             // set the owning side to null (unless already changed)
-            if ($userPhoneNumber->getUser() === $this) {
-                $userPhoneNumber->setUser(null);
+            if ($userPhoneNumber->getUsers() === $this) {
+                $userPhoneNumber->setUsers(null);
             }
         }
 

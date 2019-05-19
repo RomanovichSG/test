@@ -2,56 +2,74 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\UserPhoneNumbers;
-use App\Entity\Users;
+use App\Service\Exception\AlreadyExistException;
+use App\Service\User\User;
+use App\Service\User\UserDenormalizer;
+use App\Service\User\UserRecorder;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
 class UsersFixtures extends Fixture
 {
-    private $firstNames = [
-        'Foo',
-        'Bar',
-        'Baz',
+
+    /**
+     * @var UserDenormalizer
+     */
+    private $denormalize;
+
+    /**
+     * @var UserRecorder
+     */
+    private $recorder;
+
+    /**
+     * @var array
+     */
+    private $words = [
+        'foo',
+        'bar',
+        'baz',
+        'qux',
+        'quux',
+        'corge',
+        'grault',
+        'garply',
+        'waldo',
+        'fred',
+        'plugh',
+        'xyzzy',
+        'thud',
     ];
 
-    private $lasNames = [
-        'Foo',
-        'Bar',
-        'Baz',
-    ];
+    public function __construct(UserDenormalizer $denormalizer, UserRecorder $recorder)
+    {
+        $this->denormalize = $denormalizer;
+        $this->recorder = $recorder;
+    }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         for ($i = 0; $i <= 60; $i++) {
-            $user = new Users();
+            try {
+                $data = ['phoneNumbers' => []];
 
-            $maxPhoneNumbers = mt_rand(0, 3);
-            for ($j = 0; $j <= $maxPhoneNumbers; $j++) {
-                $phones = new UserPhoneNumbers();
+                $maxPhoneNumbers = mt_rand(0, 5);
+                for ($j = 0; $j <= $maxPhoneNumbers; $j++) {
+                    $first = mt_rand(100, 999);
+                    $second = mt_rand(100, 999);
+                    $third = mt_rand(1000, 9999);
 
-                $first = mt_rand(100, 999);
-                $second = mt_rand(100, 999);
-                $third = mt_rand(1000, 9999);
+                    $data['phoneNumbers'][] = "{$first} {$second}-{$third}";
+                }
+                $data['firstName'] = ucfirst($this->words[mt_rand(0, 12)]);
+                $data['lastName'] = ucfirst($this->words[mt_rand(0, 12)]);
 
-                //812 123-1234
-                $phones->setPhoneNumber("{$first} {$second}-{$third}");
-                $manager->persist($phones);
-                $user->addUserPhoneNumber($phones);
+                /* @var User $user */
+                $user = $this->denormalize->denormalize($data, User::class);
+                $this->recorder->makeRecord($user);
+            } catch (AlreadyExistException $exception) {
+                echo 'Collision was found';
             }
-
-            $firstNameIndex = mt_rand(0, 2);
-            $user->setFirstName($this->firstNames[$firstNameIndex]);
-
-            $lastNameIndex = mt_rand(0, 2);
-            $user->setLastName($this->lasNames[$lastNameIndex]);
-
-            $manager->persist($user);
         }
-
-        // $product = new Product();
-        // $manager->persist($product);
-
-        $manager->flush();
     }
 }
