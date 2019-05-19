@@ -29,9 +29,9 @@ class UserService
     /**
      * UserService constructor.
      *
-     * @param UserRecorder $recorder
+     * @param UserRecorder     $recorder
      * @param UserDenormalizer $denormalizer
-     * @param UsersRepository $repository
+     * @param UsersRepository  $repository
      */
     public function __construct(
         UserRecorder $recorder,
@@ -44,22 +44,20 @@ class UserService
     }
 
     /**
-     * @param null $id
-     * @param null $firstName
-     * @param null $sorting
+     * Receive user listing.
+     *
+     * @param null|int    $id
+     * @param null|string $firstName
+     * @param null|string $sorting
      *
      * @return array
      */
-    public function getUsersListing(
-        ?int $id = null,
-        ?string $firstName = null,
-        ?string $sorting = null
-    ): array {
-        $id = is_numeric($id) ? (integer) $id : 1;
-        $firstName = is_string($firstName) ? $firstName : '';
-        $sorting = is_string($sorting) ? $sorting : '';
-
-        $users = $this->repository->getUsers($id, $firstName, $sorting);
+    public function getUsersListing(UserListingDto $dto): array {
+        $users = $this->repository->getUsers(
+            $dto->getId(),
+            $dto->getFirstName(),
+            $dto->getSorting()
+        );
 
         foreach ($users as &$user) {
             $phoneNumbers = $user->getUserPhoneNumbers();

@@ -17,12 +17,19 @@ class UsersRepository extends ServiceEntityRepository
 {
     const LIMIT = 30;
 
+    /**
+     * UsersRepository constructor.
+     *
+     * @param RegistryInterface $registry
+     */
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Users::class);
     }
 
     /**
+     * The checksum was introduced to prevent writing duplicates
+     *
      * @param string $checksume
      *
      * @return Users|null
@@ -34,8 +41,11 @@ class UsersRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $id
-     * @param int $limit
+     * Receive user list
+     *
+     * @param int    $id
+     * @param string $firstName
+     * @param string $sorting
      *
      * @return Users[]
      */

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\User\Messenger\RecordUserMessage;
 use App\Service\User\UserDenormalizer;
+use App\Service\User\UserListingDto;
 use App\Service\User\UserService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,7 +35,8 @@ class UsersController extends AbstractController
     /**
      * UsersController constructor.
      *
-     * @param RequestStack $requestStack
+     * @param RequestStack    $requestStack
+     * @param LoggerInterface $logger
      */
     public function __construct(
         RequestStack $requestStack,
@@ -49,17 +51,24 @@ class UsersController extends AbstractController
      *
      * @param UserService $userService
      *
+     * Possible page params:
+     * id        - for listing
+     * firstName - for searching
+     * sorting   - for sorting (ASC|DESC)
+     *
      * @return JsonResponse
      */
     public function index(UserService $userService): JsonResponse
     {
         try {
             $request = $this->requestStack->getCurrentRequest();
-            $users = $userService->getUsersListing(
-                $request->get('id'),
-                $request->get('firstName'),
-                $request->get('sorting')
-            );
+
+            $dto = new UserListingDto();
+            $dto->setId($request->get('id'));
+            $dto->setFirstName($request->get('firstName'));
+            $dto->setSorting($request->get('sorting'));
+
+            $users = $userService->getUsersListing($dto);
 
             if (!empty($users)) {
                 $firstId = $users[array_key_first($users)]['id'];
@@ -91,16 +100,18 @@ class UsersController extends AbstractController
     /**
      * @Route("/users", methods={"POST"}, name="addUser")
      *
+     * Validating and denormalizing incoming payload
+     * After that payload will be sent to the Queue to record
+     *
      * @param MessageBusInterface $messageBus
-     * @param UserDenormalizer $denormalizer
+     * @param UserDenormalizer    $denormalizer
      *
      * @return JsonResponse
      */
     public function addUser(
         MessageBusInterface $messageBus,
         UserDenormalizer $denormalizer
-    ): JsonResponse
-    {
+    ): JsonResponse {
         try {
             $content = $this->requestStack->getCurrentRequest()->getContent();
 
