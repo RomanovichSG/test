@@ -47,6 +47,8 @@ class UsersController extends AbstractController
     /**
      * @Route("/users", methods={"GET"}, name="users")
      *
+     * @param UserService $userService
+     *
      * @return JsonResponse
      */
     public function index(UserService $userService): JsonResponse
@@ -54,7 +56,7 @@ class UsersController extends AbstractController
         try {
             $request = $this->requestStack->getCurrentRequest();
             $users = $userService->getUsersListing(
-                $request->get('page'),
+                $request->get('id'),
                 $request->get('firstName'),
                 $request->get('sorting')
             );
@@ -88,6 +90,9 @@ class UsersController extends AbstractController
 
     /**
      * @Route("/users", methods={"POST"}, name="addUser")
+     *
+     * @param MessageBusInterface $messageBus
+     * @param UserDenormalizer $denormalizer
      *
      * @return JsonResponse
      */

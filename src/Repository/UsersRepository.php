@@ -34,22 +34,18 @@ class UsersRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $page
+     * @param int $id
      * @param int $limit
+     *
      * @return Users[]
      */
-    public function getUsers(int $page = 1, string $firstName = '', string $sorting = ''): array
+    public function getUsers(int $id = 1, string $firstName = '', string $sorting = ''): array
     {
-        $minId = $this->createQueryBuilder('uid')
-            ->select('MIN(uid.id)')
-            ->getQuery()
-            ->getOneOrNullResult();
-        $minId = reset($minId);
-
         $qb = $this->createQueryBuilder('u');
         $qb->select('u')
             ->setMaxResults(self::LIMIT)
-            ->where($qb->expr()->gte('u.id', $minId + ($page - 1) * self::LIMIT));
+            ->where($qb->expr()->gte('u.id', ':id'))
+            ->setParameter('id', $id);
 
         if ('' !== $firstName) {
             $qb->andWhere(

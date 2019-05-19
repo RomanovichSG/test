@@ -25,7 +25,7 @@ prevButton.addEventListener('click', prev);
 nextButton.addEventListener('click', next);
 searchButton.addEventListener('click', search);
 
-function fillTable(data, page) {
+function fillTable(data) {
     var headerDivs = {
         'First name':'cell',
         'Last name':'cell',
@@ -48,16 +48,9 @@ function fillTable(data, page) {
         header.appendChild(headerChild);
     }
 
-    size = data.length;
-
-    if (size > 0) {
-        table.page = page;
-    } else {
-        table.page = page - 1;
-    }
-
     table.appendChild(header);
 
+    size = data.length;
     for (var i = 0; i < size; i++) {
         tableChield = document.createElement('div');
         tableChield.className = 'row';
@@ -86,13 +79,13 @@ function createCeil(data, name) {
 
 function next() {
     var table = document.getElementsByClassName('table').table;
-    var page = table.page + 1;
+    var id = + table.lastChild.id;
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/users?page=' + page);
+    xhr.open('GET', '/users?id=' + id);
     xhr.onload = function() {
         if (xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
-            fillTable(response, page);
+            fillTable(response, id);
         }
         else {
             alert('Ooops' + xhr.status);
@@ -103,18 +96,18 @@ function next() {
 
 function prev() {
     var table = document.getElementsByClassName('table').table;
-    var page = table.page - 1;
+    var id = table.firstChild.nextSibling.id - 30;
     var xhr = new XMLHttpRequest();
 
-    if (page < 1) {
-        page = 1;
+    if (id < 1) {
+        id = 1;
     }
 
-    xhr.open('GET', '/users?page=' + page);
+    xhr.open('GET', '/users?id=' + id);
     xhr.onload = function() {
         if (xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
-            fillTable(response, page);
+            fillTable(response);
         }
         else {
             alert('Ooops' + xhr.status);
@@ -126,15 +119,14 @@ function prev() {
 function search() {
     var table = document.getElementsByClassName('table').table;
     var word = document.getElementById('searchData').value;
-    var page = table.page;
+    var id = table.firstChild.nextSibling.id;
     var xhr = new XMLHttpRequest();
 
-    xhr.open('GET', '/users?page=' + page + '&firstName=' + word);
+    xhr.open('GET', '/users?id=' + id + '&firstName=' + word);
     xhr.onload = function() {
         if (xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
-            fillTable(response, page);
-            table.page = page;
+            fillTable(response, id);
         }
         else {
             alert('Ooops' + xhr.status);

@@ -44,22 +44,22 @@ class UserService
     }
 
     /**
-     * @param null $page
+     * @param null $id
      * @param null $firstName
      * @param null $sorting
      *
      * @return array
      */
     public function getUsersListing(
-        ?int $page = null,
+        ?int $id = null,
         ?string $firstName = null,
         ?string $sorting = null
     ): array {
-        $page = is_numeric($page) ? (integer) $page : 1;
+        $id = is_numeric($id) ? (integer) $id : 1;
         $firstName = is_string($firstName) ? $firstName : '';
         $sorting = is_string($sorting) ? $sorting : '';
 
-        $users = $this->repository->getUsers($page, $firstName, $sorting);
+        $users = $this->repository->getUsers($id, $firstName, $sorting);
 
         foreach ($users as &$user) {
             $phoneNumbers = $user->getUserPhoneNumbers();
