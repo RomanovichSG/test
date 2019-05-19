@@ -1,6 +1,7 @@
 var startButton = document.getElementById('start');
 var nextButton = document.getElementById('next');
 var prevButton = document.getElementById('prev');
+var searchButton = document.getElementById('search');
 
 startButton.addEventListener('click', function () {
     var xhr = new XMLHttpRequest();
@@ -14,7 +15,7 @@ startButton.addEventListener('click', function () {
             fillTable(response, 1);
         }
         else {
-            alert('Ops' + xhr.status);
+            alert('Ooops' + xhr.status);
         }
     };
     xhr.send();
@@ -22,6 +23,7 @@ startButton.addEventListener('click', function () {
 
 prevButton.addEventListener('click', prev);
 nextButton.addEventListener('click', next);
+searchButton.addEventListener('click', search);
 
 function fillTable(data, page) {
     var headerDivs = {
@@ -93,7 +95,7 @@ function next() {
             fillTable(response, page);
         }
         else {
-            alert('Ops' + xhr.status);
+            alert('Ooops' + xhr.status);
         }
     };
     xhr.send();
@@ -115,7 +117,27 @@ function prev() {
             fillTable(response, page);
         }
         else {
-            alert('Ops' + xhr.status);
+            alert('Ooops' + xhr.status);
+        }
+    };
+    xhr.send();
+}
+
+function search() {
+    var table = document.getElementsByClassName('table').table;
+    var word = document.getElementById('searchData').value;
+    var page = table.page;
+    var xhr = new XMLHttpRequest();
+
+    xhr.open('GET', '/users?page=' + page + '&firstName=' + word);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            fillTable(response, page);
+            table.page = page;
+        }
+        else {
+            alert('Ooops' + xhr.status);
         }
     };
     xhr.send();
