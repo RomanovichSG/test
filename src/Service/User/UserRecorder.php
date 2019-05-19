@@ -49,7 +49,7 @@ class UserRecorder implements Recorder
      *
      * @throws AlreadyExistException
      */
-    public function makeRecord(Recordable $unit)
+    public function makeRecord(Recordable $unit): int
     {
         $user = $this->repository->getUserByChecksum($unit->getChecksum());
 

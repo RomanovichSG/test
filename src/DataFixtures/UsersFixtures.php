@@ -47,7 +47,7 @@ class UsersFixtures extends Fixture
         $this->recorder = $recorder;
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         for ($i = 0; $i <= 60; $i++) {
             try {
