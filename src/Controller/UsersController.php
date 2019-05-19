@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\User\Messenger\RecordUserMessage;
 use App\Service\User\UserDenormalizer;
+use App\Service\User\UserListingDto;
 use App\Service\User\UserService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -61,11 +62,13 @@ class UsersController extends AbstractController
     {
         try {
             $request = $this->requestStack->getCurrentRequest();
-            $users = $userService->getUsersListing(
-                $request->get('id'),
-                $request->get('firstName'),
-                $request->get('sorting')
-            );
+
+            $dto = new UserListingDto();
+            $dto->setId($request->get('id'));
+            $dto->setFirstName($request->get('firstName'));
+            $dto->setSorting($request->get('sorting'));
+
+            $users = $userService->getUsersListing($dto);
 
             if (!empty($users)) {
                 $firstId = $users[array_key_first($users)]['id'];
