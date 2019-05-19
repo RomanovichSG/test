@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Service\Exception\AlreadyExistException;
 use App\Service\User\User;
 use App\Service\User\UserDenormalizer;
 use App\Service\User\UserRecorder;
@@ -49,22 +50,26 @@ class UsersFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         for ($i = 0; $i <= 60; $i++) {
-            $data = ['phoneNumbers' => []];
+            try {
+                $data = ['phoneNumbers' => []];
 
-            $maxPhoneNumbers = mt_rand(0, 5);
-            for ($j = 0; $j <= $maxPhoneNumbers; $j++) {
-                $first = mt_rand(100, 999);
-                $second = mt_rand(100, 999);
-                $third = mt_rand(1000, 9999);
+                $maxPhoneNumbers = mt_rand(0, 5);
+                for ($j = 0; $j <= $maxPhoneNumbers; $j++) {
+                    $first = mt_rand(100, 999);
+                    $second = mt_rand(100, 999);
+                    $third = mt_rand(1000, 9999);
 
-                $data['phoneNumbers'][] = "{$first} {$second}-{$third}";
+                    $data['phoneNumbers'][] = "{$first} {$second}-{$third}";
+                }
+                $data['firstName'] = ucfirst($this->words[mt_rand(0, 12)]);
+                $data['lastName'] = ucfirst($this->words[mt_rand(0, 12)]);
+
+                /* @var User $user */
+                $user = $this->denormalize->denormalize($data, User::class);
+                $this->recorder->makeRecord($user);
+            } catch (AlreadyExistException $exception) {
+                echo 'Collision was found';
             }
-            $data['firstName'] = $this->words[mt_rand(0, 12)];
-            $data['lastName'] = $this->words[mt_rand(0, 12)];
-
-            /* @var User $user */
-            $user = $this->denormalize->denormalize($data, User::class);
-            $this->recorder->makeRecord($user);
         }
     }
 }

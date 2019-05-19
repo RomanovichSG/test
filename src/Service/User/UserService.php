@@ -44,26 +44,38 @@ class UserService
     }
 
     /**
-     * @return UserDenormalizer
+     * @param null $page
+     * @param null $firstName
+     * @param null $sorting
+     *
+     * @return array
      */
-    public function getDenormalizer(): UserDenormalizer
-    {
-        return $this->denormalizer;
-    }
+    public function getUsersListing(
+        ?int $page = null,
+        ?string $firstName = null,
+        ?string $sorting = null
+    ): array {
+        $page = is_numeric($page) ? (integer) $page : 1;
+        $firstName = is_string($firstName) ? $firstName : '';
+        $sorting = is_string($sorting) ? $sorting : '';
 
-    /**
-     * @return UserRecorder
-     */
-    public function getRecorder(): UserRecorder
-    {
-        return $this->recorder;
-    }
+        $users = $this->repository->getUsers($page, $firstName, $sorting);
 
-    /**
-     * @return UsersRepository
-     */
-    public function getRepository(): UsersRepository
-    {
-        return $this->repository;
+        foreach ($users as &$user) {
+            $phoneNumbers = $user->getUserPhoneNumbers();
+            $numbers = [];
+            foreach ($phoneNumbers as $number) {
+                $numbers[] = $number->getPhoneNumber();
+            }
+
+            $user = [
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'phoneNumbers' => $numbers,
+            ];
+        }
+        unset($user);
+
+        return $users;
     }
 }

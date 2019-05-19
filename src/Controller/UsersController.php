@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\User\User;
+use App\Service\User\UserDenormalizer;
 use App\Service\User\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,22 +25,14 @@ class UsersController extends AbstractController
     private $requestStack;
 
     /**
-     * @var UserService
-     */
-    private $userService;
-
-    /**
      * UsersController constructor.
      *
      * @param RequestStack $requestStack
-     * @param UserService $userService
      */
     public function __construct(
-        RequestStack $requestStack,
-        UserService $userService
+        RequestStack $requestStack
     ) {
         $this->requestStack = $requestStack;
-        $this->userService = $userService;
     }
 
     /**
@@ -47,38 +40,20 @@ class UsersController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(UserService $userService): JsonResponse
     {
-        $request = $this->requestStack->getCurrentRequest();
+        try {
+            $request = $this->requestStack->getCurrentRequest();
+            $users = $userService->getUsersListing(
+                $request->get('page'),
+                $request->get('firstName'),
+                $request->get('sorting')
+            );
 
-        $page = $request->get('page');
-        $page = is_numeric($page) ? (integer) $page : 1;
-
-        $firstName = $request->get('firstName');
-        $firstName = is_string($firstName) ? $firstName : '';
-
-        $sorting = $request->get('sorting');
-        $sorting = is_string($sorting) ? $sorting : '';
-
-        $users = $this->userService->getRepository()
-            ->getUsers($page, $firstName, $sorting);
-
-        foreach ($users as &$user) {
-            $phoneNumbers = $user->getUserPhoneNumbers();
-            $numbers = [];
-            foreach ($phoneNumbers as $number) {
-                $numbers[] = $number->getPhoneNumber();
-            }
-
-            $user = [
-                'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName(),
-                'phoneNumbers' => $numbers,
-            ];
+            return $this->json($users, Response::HTTP_OK);
+        } catch (\Exception $exception) {
+            return $this->json('Internal service error', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        unset($user);
-
-        return $this->json($users, Response::HTTP_OK);
     }
 
     /**
@@ -86,18 +61,20 @@ class UsersController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function addUser(): JsonResponse
+    public function addUser(UserDenormalizer $denormalizer): JsonResponse
     {
-        $content = $this->requestStack->getCurrentRequest()->getContent();
-        $content = \json_decode($content, true);
-
         try {
-            /* @var User $user */
-            $user = $this->userService
-                ->getDenormalizer()
-                ->denormalize($content, User::class);
-        } catch (\InvalidArgumentException $exception) {
-            return $this->json($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+            $content = $this->requestStack->getCurrentRequest()->getContent();
+            $content = \json_decode($content, true);
+
+            try {
+                /* @var User $user */
+                $user = $denormalizer->denormalize($content, User::class);
+            } catch (\InvalidArgumentException $exception) {
+                return $this->json($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+            }
+        } catch (\Exception $exception) {
+            return $this->json('Internal service error', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
