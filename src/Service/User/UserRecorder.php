@@ -22,12 +22,12 @@ class UserRecorder implements Recorder
     /**
      * @var EntityManager
      */
-    private $entityManager;
+    protected $entityManager;
 
     /**
      * @var UsersRepository
      */
-    private $repository;
+    protected $repository;
 
     /**
      * UserRecorder constructor.
