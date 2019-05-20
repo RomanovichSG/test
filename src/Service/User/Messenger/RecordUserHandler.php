@@ -2,7 +2,6 @@
 
 namespace App\Service\User\Messenger;
 
-use App\Service\User\UserDenormalizer;
 use App\Service\User\UserRecorder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -28,11 +27,11 @@ class RecordUserHandler implements MessageHandlerInterface
     /**
      * RecordUserHandler constructor.
      *
-     * @param UserDenormalizer $denormalizer
-     * @param UserRecorder $recorder
+     * @param AmqpUserRecorder $recorder
+     * @param LoggerInterface  $logger
      */
     public function __construct(
-        UserRecorder $recorder,
+        AmqpUserRecorder $recorder,
         LoggerInterface $logger
     ) {
         $this->recorder = $recorder;
